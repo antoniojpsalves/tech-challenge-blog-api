@@ -29,7 +29,7 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 - [ ] Criar `docker-compose.yml` para PostgreSQL.
 - [ ] Configurar Prisma ORM e conexão com banco.
 
-2. Desenvolvimento de Recursos (Posts)
+### 2. Desenvolvimento de Recursos (Posts)
 
 - [ ] Criar Módulo de Posts (Controller, Service, Module).
 - [ ] Implementar `GET /posts` (Listagem geral).
@@ -50,7 +50,7 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 - [ ] Criar Guards para proteção de rotas (POST, PUT, DELETE).
 - [ ] Refinar esquemas de validação Zod para DTOs.
 
-4. Qualidade & Entrega
+### 4. Qualidade & Entrega
 
 - [ ] Implementar testes unitários.
 
