@@ -26,13 +26,13 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 - [x] Inicializar projeto NestJS.
 - [x] Configurar Adapter Fastify.
 - [x] Configurar Swagger para documentação da API.
-- [ ] Criar `docker-compose.yml` para PostgreSQL.
-- [ ] Configurar Prisma ORM e conexão com banco.
+- [x] Criar `docker-compose.yml` para PostgreSQL.
+- [x] Configurar Prisma ORM e conexão com banco.
 
 ### 2. Desenvolvimento de Recursos (Posts)
 
-- [ ] Criar Módulo de Posts (Controller, Service, Module).
-- [ ] Implementar `GET /posts` (Listagem geral).
+- [x] Criar Módulo de Posts (Controller, Service, Module).
+- [x] Implementar `GET /posts` (Listagem geral).
 
 - [ ] Implementar `GET /posts/:id` (Leitura de post específico).
 
