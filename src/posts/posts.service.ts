@@ -22,4 +22,23 @@ export class PostsService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  // GET /posts/:id: Rota para obter um post específico por ID
+  async findOne(id: string) {
+    return await this.prisma.post.findUnique({
+      where: { id },
+    });
+  }
+
+  // GET /posts ?query: Rota para buscar posts por título ou conteúdo
+  async search(query: string) {
+    return await this.prisma.post.findMany({
+      where: {
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { content: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+    });
+  }
 }
