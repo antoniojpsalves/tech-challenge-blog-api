@@ -33,15 +33,10 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 
 - [x] Criar Módulo de Posts (Controller, Service, Module).
 - [x] Implementar `GET /posts` (Listagem geral).
-
 - [x] Implementar `GET /posts/:id` (Leitura de post específico).
-
 - [x] Implementar `GET /posts/search` (Busca por palavras-chave).
-
 - [x] Implementar `POST /posts` (Criação com validação Zod).
-
 - [x] Implementar `PATCH /posts/:id` (Edição de postagem).
-
 - [x] Implementar `DELETE /posts/:id` (Exclusão de postagem).
 
 ### 3. Segurança & Validação
@@ -56,10 +51,99 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 
 ### 4. Qualidade & Entrega
 
-- [x] Implementar testes unitários. (ufa)
+- [x] Implementar testes unitários.
 
-- [ ] Configurar GitHub Actions (CI/CD).
+- [x] Configurar GitHub Actions (CI/CD).
 
-- [ ] Finalizar documentação técnica e guia de uso.
+- [x] Finalizar documentação técnica e guia de uso.
 
-- [ ] Gravar vídeo de demonstração.
+- [x] Gravar vídeo de demonstração.
+
+---
+
+## ⚙️ Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado em sua máquina:
+
+- [Node.js](https://nodejs.org/) (v18 ou superior)
+- [Docker](https://www.docker.com/)
+
+---
+
+## 🚀 Como executar o projeto localmente
+
+**1. Clone o repositório:**
+
+```bash
+git clone https://github.com/antoniojpsalves/tech-challenge-blog-api.git
+cd tech-challenge-blog-api
+```
+
+**2. Configure as Variáveis de Ambiente:**
+Crie um arquivo `.env` na raiz do projeto e configure suas variáveis:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/blog_posttech_db?schema=public"
+JWT_SECRET="minha-chave-secreta-super-segura"
+PORT=3000
+```
+
+**3. Suba o Banco de Dados com Docker:**
+
+```bash
+docker compose up -d
+```
+
+**4. Instale as dependências:**
+
+```bash
+npm install
+```
+
+**5. Execute as Migrations do Prisma:**
+Isso criará as tabelas no seu banco de dados PostgreSQL.
+
+```bash
+npx prisma migrate dev
+```
+
+**6. Inicie o Servidor (Modo Desenvolvimento):**
+
+```bash
+npm run start:dev
+```
+
+O servidor estará rodando em `http://localhost:3000`.
+
+---
+
+## 📚 Documentação da API (Swagger)
+
+A API está totalmente documentada pelo Swagger. Com o servidor rodando, acesse:
+👉 **[http://localhost:3000/api/docs](http://localhost:3000/api/docs)**
+
+---
+
+## 🧪 Como rodar os Testes
+
+Para executar a suíte de testes unitários desenvolvida em Jest:
+
+```bash
+
+# Executar todos os testes
+npm run test
+```
+
+---
+
+## 🔐 Fluxo de Autenticação e Perfis
+
+- **ALUNO:** Papel padrão. Pode listar posts (`GET /posts`) e buscar posts (`GET /posts/search`).
+- **PROFESSOR:** Pode listar e gerenciar posts (`POST`, `PATCH`, `DELETE`).
+
+**Passo a passo para testar:**
+
+1. Crie um usuário na rota `POST /users` passando o role `PROFESSOR`.
+2. Faça login na rota `POST /auth/login` para receber seu `access_token`.
+3. No Swagger, clique no botão **"Authorize"** (cadeado) no topo da página e insira o token.
+4. Agora você pode criar, editar e excluir posts!
