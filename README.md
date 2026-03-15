@@ -56,7 +56,7 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 
 ### 4. Qualidade & Entrega
 
-- [ ] Implementar testes unitários.
+- [x] Implementar testes unitários. (ufa)
 
 - [ ] Configurar GitHub Actions (CI/CD).
 

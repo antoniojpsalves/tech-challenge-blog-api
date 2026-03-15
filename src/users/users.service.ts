@@ -31,7 +31,7 @@ export class UsersService {
     if (!user) {
       throw new ConflictException('Usuário não encontrado');
     }
-    return await this.prisma.user.findUnique({ where: { email } });
+    return user;
   }
 
   async findById(id: string) {
