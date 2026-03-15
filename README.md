@@ -46,9 +46,13 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 
 ### 3. Segurança & Validação
 
-- [ ] Implementar autenticação JWT para rotas de docentes.
-- [ ] Criar Guards para proteção de rotas (POST, PUT, DELETE).
-- [ ] Refinar esquemas de validação Zod para DTOs.
+- [x] Criação do módulo de usuários com cadastro e hash de senhas via bcrypt.
+- [x] Implementação do fluxo de login no AuthModule com geração de token JWT.
+- [x] Configuração do JwtStrategy e JwtAuthGuard para proteção das rotas.
+- [x] Criação do RolesGuard para restringir operações de escrita (POST, PATCH, DELETE) em posts apenas para a role 'PROFESSOR'.
+- [x] Atualização do PostsService para vincular automaticamente o 'authorId' com base no usuário autenticado no token.
+- [x] Correção de tipagem nos DTOs do Zod para exibição correta no Swagger UI.
+- [x] Refatoração do JwtModule para 'registerAsync', garantindo a leitura segura do JWT_SECRET via variáveis de ambiente.
 
 ### 4. Qualidade & Entrega
 
