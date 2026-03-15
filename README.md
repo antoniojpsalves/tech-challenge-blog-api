@@ -34,15 +34,15 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 - [x] Criar Módulo de Posts (Controller, Service, Module).
 - [x] Implementar `GET /posts` (Listagem geral).
 
-- [ ] Implementar `GET /posts/:id` (Leitura de post específico).
+- [x] Implementar `GET /posts/:id` (Leitura de post específico).
 
-- [ ] Implementar `GET /posts/search` (Busca por palavras-chave).
+- [x] Implementar `GET /posts/search` (Busca por palavras-chave).
 
-- [ ] Implementar `POST /posts` (Criação com validação Zod).
+- [x] Implementar `POST /posts` (Criação com validação Zod).
 
-- [ ] Implementar `PUT /posts/:id` (Edição de postagem).
+- [x] Implementar `PATCH /posts/:id` (Edição de postagem).
 
-- [ ] Implementar `DELETE /posts/:id` (Exclusão de postagem).
+- [x] Implementar `DELETE /posts/:id` (Exclusão de postagem).
 
 ### 3. Segurança & Validação
 
