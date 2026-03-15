@@ -8,11 +8,11 @@ export class PostsService {
   constructor(private prisma: PrismaService) {}
 
   // POST /posts: Rota para criar um novo post
-  async create(data: CreatePostDto) {
+  async create(data: CreatePostDto, authorId: string) {
     return await this.prisma.post.create({
       data: {
         ...data,
-        authorId: 'temp-author-id',
+        authorId: authorId,
       },
     });
   }
