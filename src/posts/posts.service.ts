@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import type { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -39,6 +40,21 @@ export class PostsService {
           { content: { contains: query, mode: 'insensitive' } },
         ],
       },
+    });
+  }
+
+  // PUT /posts/:id: Rota para atualizar um post existente
+  async update(id: string, data: UpdatePostDto) {
+    return await this.prisma.post.update({
+      where: { id },
+      data,
+    });
+  }
+
+  // DELETE /posts/:id: Rota para excluir um post
+  async remove(id: string) {
+    return await this.prisma.post.delete({
+      where: { id },
     });
   }
 }
