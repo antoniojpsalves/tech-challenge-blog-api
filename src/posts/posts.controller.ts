@@ -10,10 +10,16 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
@@ -56,17 +62,25 @@ export class PostsController {
   // Rotas públicas (disponíveis para todos os usuários)
 
   @Get()
-  @ApiOperation({ summary: 'Listar todos os posts (disponível para todos)' })
-  findAll() {
-    return this.postsService.findAll();
+  @ApiOperation({
+    summary: 'Listar todos os posts, paginado (disponível para todos)',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.postsService.findAll(query.page, query.limit);
   }
 
   @Get('search')
   @ApiOperation({
-    summary: 'Buscar posts por título ou conteúdo (disponível para todos)',
+    summary:
+      'Buscar posts por título ou conteúdo, paginado (disponível para todos)',
   })
-  search(@Query('q') query: string) {
-    return this.postsService.search(query);
+  @ApiQuery({ name: 'q', required: true, type: String })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  search(@Query('q') q: string, @Query() query: PaginationQueryDto) {
+    return this.postsService.search(q, query.page, query.limit);
   }
 
   @Get(':id')

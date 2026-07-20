@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { paginate } from 'src/common/pagination';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import type { UpdatePostDto } from './dto/update-post.dto';
@@ -17,11 +18,20 @@ export class PostsService {
     });
   }
 
-  // GET /posts: Rota para listar todos os posts
-  async findAll() {
-    return await this.prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+  // GET /posts?page=&limit=: Rota para listar todos os posts, paginada
+  async findAll(page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.post.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.post.count(),
+    ]);
+
+    return paginate(data, total, page, limit);
   }
 
   // GET /posts/:id: Rota para obter um post específico por ID
@@ -31,16 +41,22 @@ export class PostsService {
     });
   }
 
-  // GET /posts ?query: Rota para buscar posts por título ou conteúdo
-  async search(query: string) {
-    return await this.prisma.post.findMany({
-      where: {
-        OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { content: { contains: query, mode: 'insensitive' } },
-        ],
-      },
-    });
+  // GET /posts/search?q=&page=&limit=: Rota para buscar posts por título ou conteúdo, paginada
+  async search(query: string, page = 1, limit = 10) {
+    const where = {
+      OR: [
+        { title: { contains: query, mode: 'insensitive' as const } },
+        { content: { contains: query, mode: 'insensitive' as const } },
+      ],
+    };
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.post.findMany({ where, skip, take: limit }),
+      this.prisma.post.count({ where }),
+    ]);
+
+    return paginate(data, total, page, limit);
   }
 
   // PUT /posts/:id: Rota para atualizar um post existente
