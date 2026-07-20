@@ -49,7 +49,17 @@ Este projeto consiste na refatoração do Back-end de uma plataforma de blogging
 - [x] Correção de tipagem nos DTOs do Zod para exibição correta no Swagger UI.
 - [x] Refatoração do JwtModule para 'registerAsync', garantindo a leitura segura do JWT_SECRET via variáveis de ambiente.
 
-### 4. Qualidade & Entrega
+### 4. Fase 4 — Ajustes para o Mobile
+
+- [x] Proteger `POST /users`, `GET /users` e `GET /users/:id` com JWT + `RolesGuard('PROFESSOR')`.
+- [x] Filtro `?role=PROFESSOR|ALUNO` em `GET /users`.
+- [x] Implementar `PATCH /users/:id` (edição, com re-hash de senha e checagem de e-mail duplicado).
+- [x] Implementar `DELETE /users/:id` (bloqueia com 409 se houver posts vinculados).
+- [x] Paginação server-side (`{ data, meta }`) em `GET /posts`, `GET /posts/search` e `GET /users`.
+- [x] Seed do primeiro professor (`npm run seed`).
+- [x] Atualizar Swagger e README com o contrato final.
+
+### 5. Qualidade & Entrega
 
 - [x] Implementar testes unitários.
 
@@ -107,6 +117,20 @@ Isso criará as tabelas no seu banco de dados PostgreSQL.
 npx prisma migrate dev
 ```
 
+**5.1. Rode o Seed (cria o primeiro Professor):**
+Como as rotas de usuário exigem autenticação de um PROFESSOR, é preciso um usuário inicial para começar a usar a API.
+
+```bash
+npm run seed
+```
+
+Credenciais padrão criadas pelo seed (podem ser sobrescritas via `SEED_PROFESSOR_EMAIL`, `SEED_PROFESSOR_PASSWORD` e `SEED_PROFESSOR_NAME` no `.env`):
+
+```
+email: professor@fiap.com
+senha: professor123
+```
+
 **6. Inicie o Servidor (Modo Desenvolvimento):**
 
 ```bash
@@ -138,12 +162,57 @@ npm run test
 
 ## 🔐 Fluxo de Autenticação e Perfis
 
-- **ALUNO:** Papel padrão. Pode listar posts (`GET /posts`) e buscar posts (`GET /posts/search`).
-- **PROFESSOR:** Pode listar e gerenciar posts (`POST`, `PATCH`, `DELETE`).
+- **ALUNO:** Papel padrão. Pode fazer login, listar posts (`GET /posts`) e buscar posts (`GET /posts/search`). Não tem acesso a rotas de escrita.
+- **PROFESSOR:** Pode listar e gerenciar posts (`POST`, `PATCH`, `DELETE`) e gerenciar usuários (`POST`, `GET`, `PATCH`, `DELETE /users`).
 
 **Passo a passo para testar:**
 
-1. Crie um usuário na rota `POST /users` passando o role `PROFESSOR`.
+1. Rode o seed (`npm run seed`) para ter um PROFESSOR inicial, ou peça a um PROFESSOR já existente para criar seu usuário via `POST /users`.
 2. Faça login na rota `POST /auth/login` para receber seu `access_token`.
 3. No Swagger, clique no botão **"Authorize"** (cadeado) no topo da página e insira o token.
-4. Agora você pode criar, editar e excluir posts!
+4. Agora você pode criar, editar e excluir posts e (se for PROFESSOR) gerenciar usuários!
+
+---
+
+## 📑 Contrato da API
+
+Base URL local: `http://localhost:3000` · Swagger: `/api/docs`.
+
+| Recurso | Rota | Auth | Body / Query |
+|---|---|---|---|
+| Listar posts | `GET /posts?page=&limit=` | pública | query |
+| Buscar posts | `GET /posts/search?q=&page=&limit=` | pública | query |
+| Ler post | `GET /posts/:id` | pública | — |
+| Criar post | `POST /posts` | JWT + PROFESSOR | `{ title, content, author }` |
+| Editar post | `PATCH /posts/:id` | JWT + PROFESSOR | parcial |
+| Excluir post | `DELETE /posts/:id` | JWT + PROFESSOR | — |
+| Login | `POST /auth/login` | pública | `{ email, password }` → `{ access_token }` |
+| Listar usuários | `GET /users?role=&page=&limit=` | JWT + PROFESSOR | query |
+| Ler usuário | `GET /users/:id` | JWT + PROFESSOR | — |
+| Criar usuário | `POST /users` | JWT + PROFESSOR | `{ name, email, password, role }` |
+| Editar usuário | `PATCH /users/:id` | JWT + PROFESSOR | parcial |
+| Excluir usuário | `DELETE /users/:id` | JWT + PROFESSOR | — |
+
+### Paginação
+
+`GET /posts`, `GET /posts/search` e `GET /users` aceitam `?page=` (padrão `1`) e `?limit=` (padrão `10`, máx. `100`) e retornam o envelope:
+
+```json
+{
+  "data": [ /* ...itens... */ ],
+  "meta": {
+    "total": 42,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 5,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+```
+
+`GET /posts/:id` e `GET /users/:id` **não** mudam de formato (retornam o item cru).
+
+### Erros
+
+Token ausente ou expirado → `401`. Role diferente de `PROFESSOR` em rota restrita → `403`. E-mail duplicado (criar/editar usuário) → `409`. Excluir usuário com posts vinculados → `409` ("Usuário possui posts vinculados").
