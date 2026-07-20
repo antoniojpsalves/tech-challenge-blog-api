@@ -11,6 +11,7 @@ describe('PostsService', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
   } as unknown as PrismaService;
 
@@ -46,16 +47,51 @@ describe('PostsService', () => {
   });
 
   describe('findAll', () => {
-    it('should return posts ordered by createdAt desc', async () => {
+    it('should return posts paginated, ordered by createdAt desc, with default page/limit', async () => {
       const posts = [{ id: '1' }, { id: '2' }];
       (prismaMock.post.findMany as jest.Mock).mockResolvedValue(posts);
+      (prismaMock.post.count as jest.Mock).mockResolvedValue(2);
 
       const result = await service.findAll();
 
       expect(prismaMock.post.findMany).toHaveBeenCalledWith({
         orderBy: { createdAt: 'desc' },
+        skip: 0,
+        take: 10,
       });
-      expect(result).toEqual(posts);
+      expect(prismaMock.post.count).toHaveBeenCalledWith();
+      expect(result).toEqual({
+        data: posts,
+        meta: {
+          total: 2,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
+    });
+
+    it('should apply skip/take based on page and limit', async () => {
+      (prismaMock.post.findMany as jest.Mock).mockResolvedValue([]);
+      (prismaMock.post.count as jest.Mock).mockResolvedValue(25);
+
+      const result = await service.findAll(2, 10);
+
+      expect(prismaMock.post.findMany).toHaveBeenCalledWith({
+        orderBy: { createdAt: 'desc' },
+        skip: 10,
+        take: 10,
+      });
+      expect(result.meta).toEqual({
+        total: 25,
+        page: 2,
+        limit: 10,
+        totalPages: 3,
+        hasNextPage: true,
+        hasPrevPage: true,
+      });
     });
   });
 
@@ -82,30 +118,42 @@ describe('PostsService', () => {
   });
 
   describe('search', () => {
-    it('should search posts by title or content (insensitive)', async () => {
+    it('should search posts by title or content (insensitive), paginated', async () => {
       const query = 'nestjs';
       const posts = [{ id: '1', title: 'NestJS Tips' }];
       (prismaMock.post.findMany as jest.Mock).mockResolvedValue(posts);
+      (prismaMock.post.count as jest.Mock).mockResolvedValue(1);
+
+      const expectedWhere = {
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { content: { contains: query, mode: 'insensitive' } },
+        ],
+      };
 
       const result = await service.search(query);
 
       expect(prismaMock.post.findMany).toHaveBeenCalledWith({
-        where: {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { content: { contains: query, mode: 'insensitive' } },
-          ],
-        },
+        where: expectedWhere,
+        skip: 0,
+        take: 10,
       });
-      expect(result).toEqual(posts);
+      expect(prismaMock.post.count).toHaveBeenCalledWith({
+        where: expectedWhere,
+      });
+      expect(result.data).toEqual(posts);
+      expect(result.meta.total).toBe(1);
     });
 
-    it('should return empty array when no matches are found', async () => {
+    it('should return empty data array when no matches are found', async () => {
       (prismaMock.post.findMany as jest.Mock).mockResolvedValue([]);
+      (prismaMock.post.count as jest.Mock).mockResolvedValue(0);
 
       const result = await service.search('no-match');
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
+      expect(result.meta.total).toBe(0);
+      expect(result.meta.totalPages).toBe(1);
     });
   });
 
